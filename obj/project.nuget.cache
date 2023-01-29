@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "65zeqUXjtHPlR3VskS9w0lCY7fEEAKrvc/pcoS7ZZ3laptta528HpgMV8sPH4yEG4Bcnwzgu65Qg919PyLXRYQ==",
+  "success": true,
+  "projectFilePath": "D:\\ITE\\Intelligent Search Algorithms\\Projects\\Raylib\\SokoNumber\\Raylib.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Iyad\\.nuget\\packages\\raylib-cs\\4.2.0.1\\raylib-cs.4.2.0.1.nupkg.sha512",
+    "C:\\Users\\Iyad\\.nuget\\packages\\system.numerics.vectors\\4.5.0\\system.numerics.vectors.4.5.0.nupkg.sha512"
+  ],
+  "logs": []
+}
