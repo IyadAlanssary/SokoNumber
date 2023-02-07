@@ -31,9 +31,7 @@ namespace HelloWorld
                     else if (savedMap[i, j].Length == 2)
                     {
                         numbers.Add(new Object(savedMap[i, j][0].ToString(), i, j));
-                        int a = savedMap[i, j][1] - 48;
-                        char c = (char)a;
-                        letters.Add(new Object(c.ToString(), i, j));
+                        letters.Add(new Object(savedMap[i, j][1].ToString(), i, j));
                         map[i, j] = savedMap[i, j][0].ToString();
                     }
 
@@ -44,11 +42,7 @@ namespace HelloWorld
                     //for input like a
                     else if (savedMap[i, j].Any(x => char.IsLetter(x)))
                     {
-                        int a = savedMap[i, j][0] - 48;
-                        char c = (char)a;
-                        letters.Add(new Object(c.ToString(), i, j));
-
-                        //letters.Add(new Object(savedMap[i, j], i, j));
+                        letters.Add(new Object(savedMap[i, j], i, j));
                         map[i, j] = EMPTY;
                     }
                 }
@@ -75,11 +69,11 @@ namespace HelloWorld
                 if (map[num.x, num.y + 1] == EMPTY)
                 {
                     map[num.x, num.y + 1] = num.value;
-                    num.y++;
                     if (Program.blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
+                    num.y++;
                 }
                 else if (map[num.x, num.y + 1][0] == '+')
                 {
@@ -88,11 +82,11 @@ namespace HelloWorld
                     num.value = c.ToString();
 
                     map[num.x, num.y + 1] = num.value;
-                    num.y++;
                     if (Program.blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
+                    num.y++;
                 }
             }
             return this;
@@ -115,11 +109,11 @@ namespace HelloWorld
                 if (map[num.x, num.y - 1] == EMPTY)
                 {
                     map[num.x, num.y - 1] = num.value;
-                    num.y--;
                     if (Program.blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
+                    num.y--;
                 }
                 else if (map[num.x, num.y - 1][0] == '+')
                 {
@@ -128,11 +122,11 @@ namespace HelloWorld
                     num.value = c.ToString();
 
                     map[num.x, num.y - 1] = num.value;
-                    num.y--;
                     if (Program.blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
+                    num.y--;
                 }
 
             }
@@ -156,11 +150,11 @@ namespace HelloWorld
                 if (map[num.x - 1, num.y] == EMPTY)
                 {
                     map[num.x - 1, num.y] = num.value;
-                    num.x--;
                     if (Program.blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
+                    num.x--;
                 }
                 else if (map[num.x - 1, num.y][0] == '+')
                 {
@@ -169,11 +163,11 @@ namespace HelloWorld
                     num.value = c.ToString();
 
                     map[num.x - 1, num.y] = num.value;
-                    num.x--;
                     if (Program.blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
+                    num.x--;
                 }
             }
             return this;
@@ -196,11 +190,11 @@ namespace HelloWorld
                 if (map[num.x + 1, num.y] == EMPTY)
                 {
                     map[num.x + 1, num.y] = num.value;
+                    if (Program.blockGeneratingLevel)
+                        map[num.x, num.y] = "#";
+                    else
+                        map[num.x, num.y] = EMPTY;
                     num.x++;
-                    // if (Program.blockGeneratingLevel)
-                    //     map[num.x, num.y] = "#";
-                    // else
-                    map[num.x, num.y] = EMPTY;
                 }
                 else if (map[num.x + 1, num.y][0] == '+')
                 {
@@ -209,11 +203,11 @@ namespace HelloWorld
                     num.value = c.ToString();
 
                     map[num.x + 1, num.y] = num.value;
-                    num.x++;
                     if (Program.blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
+                    num.x++;
                 }
             }
             return this;
@@ -224,11 +218,10 @@ namespace HelloWorld
             numbers = numbers.OrderBy(o => o.value).ToList();
             for (int i = 0; i < numbers.Count; i++)
             {
-                Console.WriteLine(i + " : " + numbers[i].value + "  " + letters[i].value);
-                for (int j = 0; j < numbers.Count; j++)
+                Object? l = letters.Find(o => ((o.value[0] - numbers[i].value[0]) == 48) && numbers[i].x == o.x && numbers[i].y == o.y);
+                if (l == null)
                 {
-                    if (numbers[i].value != letters[j].value || numbers[i].x != letters[j].x || numbers[i].y != letters[j].y)
-                        return false;
+                    return false;
                 }
             }
             Raylib.PlaySound(win);
@@ -299,7 +292,10 @@ namespace HelloWorld
             }
             foreach (Object let in letters)
             {
-                Raylib.DrawText(let.value, (let.y * 100) + 60, (let.x * 100) + 40, 26, Color.RED);
+                int a = let.value[0] - 48;
+                char c = (char)a;
+
+                Raylib.DrawText(c.ToString(), (let.y * 100) + 60, (let.x * 100) + 40, 26, Color.RED);
             }
         }
         public Map deepCopy()

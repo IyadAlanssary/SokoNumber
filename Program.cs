@@ -77,11 +77,12 @@ namespace HelloWorld
         }
         static void intro()
         {
-            Raylib.DrawText("Welcome to SokoNumber", 100, 100, 45, Color.WHITE);
-            Raylib.DrawText("Choose a level from 1 to 6", 120, 240, 35, Color.WHITE);
-
-            Raylib.DrawText("Get the numbers to their letters", 120, 380, 30, Color.WHITE);
-
+            Raylib.DrawText("SokoNumber", 700 / 3, 700 / 3, 45, Color.WHITE);
+            for (int i = 0; i < 10; i++)
+            {
+                Raylib.DrawRectangle(30 + (i* 30), 350, 30, 30, Color.LIGHTGRAY);
+                Raylib.DrawText(i.ToString(), 30 + (i * 20), 350, 20, Color.WHITE);
+            }
             string chosenMap = ((char)Raylib.GetKeyPressed()).ToString();
             assignMap(chosenMap);
             if (map != null)
@@ -92,6 +93,12 @@ namespace HelloWorld
         }
         static void assignMap(String chosenMap)
         {
+            int i = 0;
+            System.Numerics.Vector2 mouse = Raylib.GetMousePosition();
+            if (mouse.X > i * 20 && mouse.Y > i * 20)
+            {
+
+            }
             switch (chosenMap)
             {
                 case "1":
@@ -186,7 +193,7 @@ namespace HelloWorld
             {
                 map.moveLeft();
             }
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_RIGHT) || Raylib.IsKeyPressed(KeyboardKey.KEY_R))
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_RIGHT) || Raylib.IsKeyPressed(KeyboardKey.KEY_D))
             {
                 map.moveRight();
             }
