@@ -11,29 +11,24 @@ namespace HelloWorld
         static Stopwatch stopwatch = new Stopwatch();
         private enum stateEnum { Intro, ChoosingMethod, userPlaying, Results };
         private static stateEnum state = stateEnum.Intro;
-        public static bool blockGeneratingLevel = false;
+        public static bool blockGeneratingLevel = false, algorithmSolvable = false;
+        public static int levelNumber = -1;
         static void Main(string[] args)
         {
             blockGeneratingLevel = false;
             Raylib.InitAudioDevice();
             Raylib.SetMasterVolume(0.1f);
             hideConsole();
-            // string startupPath = System.IO.Directory.GetCurrentDirectory() + "\\level_1";
-            // Console.WriteLine(startupPath);
 
-            // string[] lines = System.IO.File.ReadAllLines(startupPath);
-
-            // foreach (string line in lines)
-            // {
-            //     Console.WriteLine("\t" + line);
-            // }
             Raylib.InitWindow(700, 700, "SokoNumber");
             Raylib.SetTargetFPS(24);
+
+            //Raylib_CsLo.RayGui.GuiLoadStyleDefault();
 
             while (!Raylib.WindowShouldClose())
             {
                 Raylib.BeginDrawing();
-                Raylib.ClearBackground(Color.DARKBROWN);
+                Raylib.ClearBackground(Color.BROWN);
                 switch (state)
                 {
                     case stateEnum.Intro:
@@ -42,8 +37,15 @@ namespace HelloWorld
                     case stateEnum.ChoosingMethod:
                         width = map.map.GetLength(1) * 100;
                         height = map.map.GetLength(0) * 100;
-                        choosingMethodPrompts();
-                        getMethodInput();
+                        if (algorithmSolvable)
+                        {
+                            choosingMethodPrompts();
+                            getMethodInput();
+                        }
+                        else
+                        {
+                            state = stateEnum.userPlaying;
+                        }
                         if (map.isFinal())
                         {
                             state = stateEnum.Results;
@@ -77,75 +79,142 @@ namespace HelloWorld
         }
         static void intro()
         {
-            Raylib.DrawText("SokoNumber", 700 / 3, 700 / 3, 45, Color.WHITE);
-            for (int i = 0; i < 10; i++)
-            {
-                Raylib.DrawRectangle(30 + (i* 30), 350, 30, 30, Color.LIGHTGRAY);
-                Raylib.DrawText(i.ToString(), 30 + (i * 20), 350, 20, Color.WHITE);
-            }
-            string chosenMap = ((char)Raylib.GetKeyPressed()).ToString();
-            assignMap(chosenMap);
+            Raylib.DrawText("SokoNumber", 700 / 3, 700 / 3, 55, Color.WHITE);
+            Raylib.DrawText("Guide the numbers to their unique position on the grid", 65, 700 - 50, 22, Color.WHITE);
+
+            Gui.guii();
+
+            assignMap();
             if (map != null)
             {
                 map.parent = null;
                 state = stateEnum.ChoosingMethod;
             }
         }
-        static void assignMap(String chosenMap)
+        static void assignMap()
         {
-            int i = 0;
-            System.Numerics.Vector2 mouse = Raylib.GetMousePosition();
-            if (mouse.X > i * 20 && mouse.Y > i * 20)
+            if (Raylib.IsMouseButtonPressed(0))
             {
+                System.Numerics.Vector2 mouse = Raylib.GetMousePosition();
+                for (int i = 0; i < 10; i++)
+                {
+                    if (mouse.X > (85 + i * 55) && mouse.X < (125 + i * 55))
+                    {
+                        if (mouse.Y > 400 && mouse.Y < 440)
+                        {
+                            levelNumber = i + 1;
+                            switch (i + 1)
+                            {
+                                case 1:
+                                    algorithmSolvable = true;
+                                    map = new Map(SavedMaps.Level_1);
+                                    break;
+                                case 2:
+                                    algorithmSolvable = true;
+                                    map = new Map(SavedMaps.Level_2);
+                                    break;
+                                case 3:
+                                    algorithmSolvable = true;
+                                    map = new Map(SavedMaps.Level_3);
+                                    break;
+                                case 4:
+                                    algorithmSolvable = true;
+                                    map = new Map(SavedMaps.Level_4);
+                                    break;
+                                case 5:
+                                    algorithmSolvable = true;
+                                    map = new Map(SavedMaps.Level_5);
+                                    break;
+                                case 6:
+                                    algorithmSolvable = true;
+                                    map = new Map(SavedMaps.Level_6);
+                                    break;
+                                case 7:
+                                    map = new Map(SavedMaps.Level_7);
+                                    break;
+                                case 8:
+                                    map = new Map(SavedMaps.Level_8);
+                                    break;
+                                case 9:
+                                    map = new Map(SavedMaps.Level_9);
+                                    break;
+                                case 10:
+                                    map = new Map(SavedMaps.Level_10);
+                                    break;
+                                default:
+                                    levelNumber = -1;
+                                    break;
+                            }
+                        }
+                        else if (mouse.Y > 480 && mouse.Y < 520)
+                        {
+                            levelNumber = i + 11;
+                            switch (i + 1)
+                            {
+                                case 1:
+                                    map = new Map(SavedMaps.Level_11);
+                                    break;
+                                case 2:
+                                    map = new Map(SavedMaps.Level_12);
+                                    break;
+                                case 3:
+                                    map = new Map(SavedMaps.Level_13);
+                                    break;
+                                case 4:
+                                    map = new Map(SavedMaps.Level_14);
+                                    break;
+                                case 5:
+                                    map = new Map(SavedMaps.Level_15);
+                                    break;
+                                case 6:
+                                    map = new Map(SavedMaps.Level_16);
+                                    break;
+                                case 7:
+                                    map = new Map(SavedMaps.Level_17);
+                                    break;
+                                case 8:
+                                    map = new Map(SavedMaps.Level_18);
+                                    break;
+                                case 9:
+                                    map = new Map(SavedMaps.Level_19);
+                                    break;
+                                case 10:
+                                    blockGeneratingLevel = true;
+                                    map = new Map(SavedMaps.Level_20);
+                                    break;
+                                default:
+                                    levelNumber = -1;
+                                    break;
+                            }
+                        }
+                        else if (mouse.Y > 560 && mouse.Y < 600)
+                        {
+                            levelNumber = i + 21;
+                            switch (i + 1)
+                            {
+                                case 1:
+                                    map = new Map(SavedMaps.Level_21);
+                                    break;
+                                case 2:
+                                    map = new Map(SavedMaps.Level_22);
+                                    break;
+                                case 3:
+                                    map = new Map(SavedMaps.Level_23);
+                                    break;
+                                case 4:
+                                    map = new Map(SavedMaps.Level_24);
+                                    break;
+                                case 5:
+                                    map = new Map(SavedMaps.Level_25);
+                                    break;
+                                default:
+                                    levelNumber = -1;
+                                    break;
+                            }
 
-            }
-            switch (chosenMap)
-            {
-                case "1":
-                    map = new Map(SavedMaps.Level_1);
-                    break;
-                case "2":
-                    map = new Map(SavedMaps.Level_2);
-                    break;
-                case "3":
-                    map = new Map(SavedMaps.Level_3);
-                    break;
-                case "4":
-                    map = new Map(SavedMaps.Level_4);
-                    break;
-                case "5":
-                    map = new Map(SavedMaps.Level_5);
-                    break;
-                case "6":
-                    map = new Map(SavedMaps.Level_6);
-                    break;
-                case "7":
-                    map = new Map(SavedMaps.Level_7);
-                    break;
-                case "8":
-                    blockGeneratingLevel = true;
-                    map = new Map(SavedMaps.Level_8);
-                    break;
-                case "9":
-                    map = new Map(SavedMaps.Level_9);
-                    break;
-                case "10":
-                    map = new Map(SavedMaps.Level_10);
-                    break;
-                case "11":
-                    map = new Map(SavedMaps.Level_11);
-                    break;
-                case "12":
-                    map = new Map(SavedMaps.Level_12);
-                    break;
-                case "13":
-                    map = new Map(SavedMaps.Level_13);
-                    break;
-                case "14":
-                    map = new Map(SavedMaps.Level_14);
-                    break;
-                default:
-                    break;
+                        }
+                    }
+                }
             }
         }
         static void getMethodInput()
@@ -207,11 +276,13 @@ namespace HelloWorld
             Raylib.DrawText("4: Uniform Cost", 350, 50, 21, Color.WHITE);
             Raylib.DrawText("5: A*", 350, 75, 21, Color.WHITE);
             Raylib.DrawText("R: Restart", 580, 50, 21, Color.WHITE);
+            Raylib.DrawText(levelNumber.ToString(), 620, 620, 28, Color.WHITE);
         }
         static void userPlayPrompts()
         {
             Raylib.DrawText("Move: ARROWS / WASD", 25, 20, 21, Color.WHITE);
             Raylib.DrawText("Restart: R", 25, 50, 21, Color.WHITE);
+            Raylib.DrawText(levelNumber.ToString(), 620, 620, 21, Color.WHITE);
         }
         static void restart()
         {
@@ -223,6 +294,7 @@ namespace HelloWorld
             blockGeneratingLevel = false;
             Console.Clear();
             state = stateEnum.Intro;
+            algorithmSolvable = false;
         }
         static void results()
         {

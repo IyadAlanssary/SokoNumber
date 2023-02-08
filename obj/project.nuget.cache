@@ -1,10 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "65zeqUXjtHPlR3VskS9w0lCY7fEEAKrvc/pcoS7ZZ3laptta528HpgMV8sPH4yEG4Bcnwzgu65Qg919PyLXRYQ==",
+  "dgSpecHash": "aJdSGkFgrTOeQ9KU0kA7KUu9+Ss6I86H7UlK52F85Gs44CSnn7iVFs0jxi0/fcgGCqxalAJP+rMf0Y5Hcza0dA==",
   "success": true,
   "projectFilePath": "D:\\ITE\\Intelligent Search Algorithms\\Projects\\Raylib\\SokoNumber\\Raylib.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Iyad\\.nuget\\packages\\microsoft.toolkit.highperformance\\7.1.2\\microsoft.toolkit.highperformance.7.1.2.nupkg.sha512",
     "C:\\Users\\Iyad\\.nuget\\packages\\raylib-cs\\4.2.0.1\\raylib-cs.4.2.0.1.nupkg.sha512",
+    "C:\\Users\\Iyad\\.nuget\\packages\\raylib-cslo\\4.2.0.5\\raylib-cslo.4.2.0.5.nupkg.sha512",
     "C:\\Users\\Iyad\\.nuget\\packages\\system.numerics.vectors\\4.5.0\\system.numerics.vectors.4.5.0.nupkg.sha512"
   ],
   "logs": []

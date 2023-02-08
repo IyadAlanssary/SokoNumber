@@ -277,8 +277,32 @@ namespace HelloWorld
                 for (int j = 0; j < map.GetLength(1); j++)
                 {
                     if (map[i, j] == EMPTY)
+                    {
                         Raylib.DrawRectangle(j * 100, i * 100, 100, 100, Color.WHITE);
-                    if (map[i, j][0] == '+')
+                        // if (i > 0)
+                        // {
+                        //     if (map[i - 1, j] == "#")
+                        //     {
+                        //         Raylib.DrawRectangle(j * 100, i * 100, 100, 3, Color.DARKGRAY);
+                        //     }
+                        // }
+                        // if (j > 0)
+                        // {
+                        //     if (map[i, j - 1] == "#")
+                        //     {
+                        //         Raylib.DrawRectangle(j * 100, i * 100, 3, 100, Color.DARKGRAY);
+                        //     }
+                        // }
+                    }
+                    // if (j == map.GetLength(1) - 1 && map[i, j - 1] != "#")
+                    // {
+                    //     Raylib.DrawRectangle(j * 100, 6 + i * 100, 3, 94, Color.DARKGRAY);
+                    // }
+                    // if (i == map.GetLength(0) - 1 && map[i - 1, j] != "#")
+                    // {
+                    //     Raylib.DrawRectangle(6 + j * 100, i * 100, 94, 3, Color.DARKGRAY);
+                    // }
+                    if (map[i, j][0] == '+' || map[i, j][0] == '-')
                     {
                         Raylib.DrawRectangle(j * 100, i * 100, 100, 100, Color.WHITE);
                         Raylib.DrawText(map[i, j], (j * 100) + 60, (i * 100) + 40, 26, Color.PURPLE);
@@ -287,14 +311,14 @@ namespace HelloWorld
             }
             foreach (Object num in numbers)
             {
-                Raylib.DrawRectangle(num.y * 100, num.x * 100, 100, 100, Color.GREEN);
+                Raylib.DrawRectangle(num.y * 100, num.x * 100, 100, 100, Color.DARKGRAY);
+                Raylib.DrawRectangle(2 + num.y * 100, 2 + num.x * 100, 96, 96, Color.GREEN);
                 Raylib.DrawText(num.value, (num.y * 100) + 40, (num.x * 100) + 40, 26, Color.BLUE);
             }
             foreach (Object let in letters)
             {
                 int a = let.value[0] - 48;
                 char c = (char)a;
-
                 Raylib.DrawText(c.ToString(), (let.y * 100) + 60, (let.x * 100) + 40, 26, Color.RED);
             }
         }
