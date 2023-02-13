@@ -44,7 +44,7 @@ namespace HelloWorld
                         if (loading)
                         {
                             loadingText();
-                            Raylib.DrawText("Visited States: " + Algorithms.visitedStates.ToString(), mapWidth / 2 + 40, mapHeight + 30, 20, Colors.WHITE);
+                            Raylib.DrawText("Visited States: " + Algorithms.visitedStates.ToString(), mapWidth / 2 + 60, mapHeight - 25, 20, Colors.WHITE);
                         }
                         algorithmTask = new Task(new Action(getMethodInput));
                         algorithmTask.Start();
@@ -258,7 +258,7 @@ namespace HelloWorld
                 Raylib.DrawText(stopwatch.Elapsed.TotalSeconds.ToString() + " seconds", 100, mapHeight - 80, 25, Colors.WHITE);
                 Raylib.DrawText("Moves: " + new String(allMovesCharArray), 100, mapHeight - 50, 20, Colors.WHITE);
                 Raylib.DrawText("Solution Depth: " + map.numberOfMoves.ToString(), 100, mapHeight - 25, 20, Colors.WHITE);
-                Raylib.DrawText("Visited States: " + Algorithms.visitedStates.ToString(), mapWidth / 2 + 40, mapHeight - 25, 20, Colors.WHITE);
+                Raylib.DrawText("Visited States: " + Algorithms.visitedStates.ToString(), mapWidth / 2 + 60, mapHeight - 25, 20, Colors.WHITE);
             }
         }
         static void loadingText()
