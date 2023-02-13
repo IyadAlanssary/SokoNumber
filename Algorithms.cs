@@ -93,8 +93,8 @@ namespace HelloWorld
                 else
                 {
                     queue.Dequeue();
-                    // if (passedB4(peeky))
-                    //     continue;
+                    if (passedB4(peeky))
+                        continue;
                     passedMaps.Add(peeky);
                     visitedStates++;
 
@@ -141,8 +141,8 @@ namespace HelloWorld
                 else
                 {
                     list.Remove(peeky);
-                    // if (passedB4(peeky))
-                    //     continue;
+                    if (passedB4(peeky))
+                        continue;
                     passedMaps.Add(peeky);
                     visitedStates++;
 
