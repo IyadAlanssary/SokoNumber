@@ -1,6 +1,70 @@
 namespace HelloWorld;
 public class SavedMaps
 {
+    public static string[,] chooseMap(int i)
+    {
+        switch (i)
+        {
+            case 1:
+                return Level_1;
+            case 2:
+                return Level_2;
+            case 3:
+                return Level_3;
+            case 4:
+                return Level_4;
+            case 5:
+                return Level_5;
+            case 6:
+                return Level_6;
+            case 7:
+                return Level_7;
+            case 8:
+                return Level_8;
+            case 9:
+                return Level_9;
+            case 10:
+                return Level_10;
+            case 11:
+                return Level_11;
+            case 12:
+                return Level_12;
+            case 13:
+                return Level_13;
+            case 14:
+                return Level_14;
+            case 15:
+                return Level_15;
+            case 16:
+                return Level_16;
+            case 17:
+                return Level_17;
+            case 18:
+                return Level_18;
+            case 19:
+                return Level_19;
+            case 20:
+                Map.blockGeneratingLevel = true;
+                return Level_20;
+            case 21:
+                Map.blockGeneratingLevel = true;
+                return Level_21;
+            case 22:
+                Map.blockGeneratingLevel = true;
+                return Level_22;
+            case 23:
+                Map.blockGeneratingLevel = true;
+                return Level_23;
+            case 24:
+                Map.blockGeneratingLevel = true;
+                return Level_24;
+            case 25:
+                Map.blockGeneratingLevel = true;
+                return Level_25;
+            default:
+                return Level_1;
+        }
+    }
     public static string[,] Level_1 = new string[3, 7] { { "#", "#", "#", "#", "#", "#", "#" },
                                                          { "#", "1", "_", "_", "_", "a", "#" },
                                                          { "#", "#", "#", "#", "#", "#", "#" } };
@@ -91,14 +155,14 @@ public class SavedMaps
     public static string[,] Level_17 = new string[6, 7] {{ "#", "#", "#", "#", "#", "#", "#"},
                                                         { "#", "#", "2", "#", "#", "#", "#"},
                                                         { "#", "1", "+2", "+1", "+2", "+1", "#"},
-                                                        { "#", "#", "+1", "3", "g", "#", "#"},
+                                                        { "#", "#", "+1", "#", "g", "#", "#"},
                                                         { "#", "#", "b", "1", "b", "#", "#"},
                                                         { "#", "#", "#", "#", "#", "#", "#"}};
     public static string[,] Level_18 = new string[6, 6] {{ "#", "#", "#", "#", "#", "#"},
                                                      { "#", "+1", "+1", "+1", "#", "#"},
                                                      { "#", "1", "#", "1", "_", "#"},
                                                      { "#", "+1", "+1", "+1", "+1", "#"},
-                                                     { "#", "1", "#", "h", "#", "#"},
+                                                     { "#", "a", "#", "h", "#", "#"},
                                                      { "#", "#", "#", "#", "#", "#"}};
     public static string[,] Level_19 = new string[5, 7] {{ "#", "#", "#", "#", "#", "#", "#"},
                                                      { "#", "i", "+1", "1", "+1", "+1", "#"},

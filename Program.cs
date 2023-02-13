@@ -1,53 +1,58 @@
 ﻿using Raylib_cs;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-
 namespace HelloWorld
 {
     class Program
     {
         public static Map map;
-        private static int width, height;
+        public static int mapWidth, mapHeight, screenWidth = 900, screenHeight = 900;
         static Stopwatch stopwatch = new Stopwatch();
         private enum stateEnum { Intro, ChoosingMethod, userPlaying, Results };
         private static stateEnum state = stateEnum.Intro;
-        public static bool blockGeneratingLevel = false, algorithmSolvable = false;
+        public static bool loading = false;
         public static int levelNumber = -1;
+        private static int frameCounter = 0;
+
         static void Main(string[] args)
         {
-            blockGeneratingLevel = false;
             Raylib.InitAudioDevice();
             Raylib.SetMasterVolume(0.1f);
             hideConsole();
 
-            Raylib.InitWindow(700, 700, "SokoNumber");
+            Raylib.InitWindow(screenWidth, screenHeight, "SokoNumber");
             Raylib.SetTargetFPS(24);
 
-            //Raylib_CsLo.RayGui.GuiLoadStyleDefault();
-
+            Task algorithmTask = null;
             while (!Raylib.WindowShouldClose())
             {
                 Raylib.BeginDrawing();
-                Raylib.ClearBackground(Color.BROWN);
+                Raylib.ClearBackground(Colors.BACKGROUND);
                 switch (state)
                 {
                     case stateEnum.Intro:
                         intro();
                         break;
                     case stateEnum.ChoosingMethod:
-                        width = map.map.GetLength(1) * 100;
-                        height = map.map.GetLength(0) * 100;
-                        if (algorithmSolvable)
+                        mapWidth = map.map.GetLength(1) * 100;
+                        mapHeight = map.map.GetLength(0) * 100;
+                        if (Raylib.IsKeyPressed(KeyboardKey.KEY_TWO) || Raylib.IsKeyPressed(KeyboardKey.KEY_THREE)
+                             || Raylib.IsKeyPressed(KeyboardKey.KEY_FOUR) || Raylib.IsKeyPressed(KeyboardKey.KEY_FIVE))
                         {
-                            choosingMethodPrompts();
-                            getMethodInput();
+                            loading = true;
                         }
-                        else
+                        if (loading)
                         {
-                            state = stateEnum.userPlaying;
+                            loadingText();
+                            Raylib.DrawText("Visited States: " + Algorithms.visitedStates.ToString(), mapWidth / 2 + 40, mapHeight + 30, 20, Colors.WHITE);
                         }
+                        algorithmTask = new Task(new Action(getMethodInput));
+                        algorithmTask.Start();
+
+                        choosingMethodPrompts();
                         if (map.isFinal())
                         {
+                            loading = false;
                             state = stateEnum.Results;
                         }
                         map.printMap();
@@ -68,9 +73,13 @@ namespace HelloWorld
                     default:
                         break;
                 }
+                if (Raylib.IsKeyPressed(KeyboardKey.KEY_M))
+                {
+                    restartMainMenu();
+                }
                 if (Raylib.IsKeyPressed(KeyboardKey.KEY_R))
                 {
-                    restart();
+                    restartLevel();
                 }
                 Raylib.EndDrawing();
             }
@@ -79,11 +88,10 @@ namespace HelloWorld
         }
         static void intro()
         {
-            Raylib.DrawText("SokoNumber", 700 / 3, 700 / 3, 55, Color.WHITE);
-            Raylib.DrawText("Guide the numbers to their unique position on the grid", 65, 700 - 50, 22, Color.WHITE);
+            Raylib.DrawText("SokoNumber", screenWidth / 3 - 30, screenHeight / 3, 60, Colors.WHITE);
+            Raylib.DrawText("Guide the numbers to their unique position on the grid", screenWidth / 7, screenHeight - 80, 25, Colors.WHITE);
 
-            Gui.guii();
-
+            guiButtons();
             assignMap();
             if (map != null)
             {
@@ -91,128 +99,45 @@ namespace HelloWorld
                 state = stateEnum.ChoosingMethod;
             }
         }
+        static void guiButtons()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                Raylib.DrawRectangle(150 + (i * 60), 440, 50, 50, Colors.BUTTON);
+                Raylib.DrawText((i + 1).ToString(), 165 + (i * 60), 450, 30, Colors.BACKGROUND);
+
+                Raylib.DrawRectangle(150 + (i * 60), 520, 50, 50, Colors.BUTTON);
+                Raylib.DrawText((i + 11).ToString(), 160 + (i * 60), 530, 30, Colors.BACKGROUND);
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                Raylib.DrawRectangle(150 + (i * 60), 600, 50, 50, Colors.BUTTON);
+                Raylib.DrawText((i + 21).ToString(), 160 + (i * 60), 610, 30, Colors.BACKGROUND);
+            }
+        }
         static void assignMap()
         {
             if (Raylib.IsMouseButtonPressed(0))
             {
-                System.Numerics.Vector2 mouse = Raylib.GetMousePosition();
+                System.Numerics.Vector2 mousePos = Raylib.GetMousePosition();
                 for (int i = 0; i < 10; i++)
                 {
-                    if (mouse.X > (85 + i * 55) && mouse.X < (125 + i * 55))
+                    if (mousePos.X > (150 + i * 60) && mousePos.X < (200 + i * 60))
                     {
-                        if (mouse.Y > 400 && mouse.Y < 440)
+                        if (mousePos.Y > 440 && mousePos.Y < 480)
                         {
                             levelNumber = i + 1;
-                            switch (i + 1)
-                            {
-                                case 1:
-                                    algorithmSolvable = true;
-                                    map = new Map(SavedMaps.Level_1);
-                                    break;
-                                case 2:
-                                    algorithmSolvable = true;
-                                    map = new Map(SavedMaps.Level_2);
-                                    break;
-                                case 3:
-                                    algorithmSolvable = true;
-                                    map = new Map(SavedMaps.Level_3);
-                                    break;
-                                case 4:
-                                    algorithmSolvable = true;
-                                    map = new Map(SavedMaps.Level_4);
-                                    break;
-                                case 5:
-                                    algorithmSolvable = true;
-                                    map = new Map(SavedMaps.Level_5);
-                                    break;
-                                case 6:
-                                    algorithmSolvable = true;
-                                    map = new Map(SavedMaps.Level_6);
-                                    break;
-                                case 7:
-                                    map = new Map(SavedMaps.Level_7);
-                                    break;
-                                case 8:
-                                    map = new Map(SavedMaps.Level_8);
-                                    break;
-                                case 9:
-                                    map = new Map(SavedMaps.Level_9);
-                                    break;
-                                case 10:
-                                    map = new Map(SavedMaps.Level_10);
-                                    break;
-                                default:
-                                    levelNumber = -1;
-                                    break;
-                            }
                         }
-                        else if (mouse.Y > 480 && mouse.Y < 520)
+                        else if (mousePos.Y > 520 && mousePos.Y < 560)
                         {
                             levelNumber = i + 11;
-                            switch (i + 1)
-                            {
-                                case 1:
-                                    map = new Map(SavedMaps.Level_11);
-                                    break;
-                                case 2:
-                                    map = new Map(SavedMaps.Level_12);
-                                    break;
-                                case 3:
-                                    map = new Map(SavedMaps.Level_13);
-                                    break;
-                                case 4:
-                                    map = new Map(SavedMaps.Level_14);
-                                    break;
-                                case 5:
-                                    map = new Map(SavedMaps.Level_15);
-                                    break;
-                                case 6:
-                                    map = new Map(SavedMaps.Level_16);
-                                    break;
-                                case 7:
-                                    map = new Map(SavedMaps.Level_17);
-                                    break;
-                                case 8:
-                                    map = new Map(SavedMaps.Level_18);
-                                    break;
-                                case 9:
-                                    map = new Map(SavedMaps.Level_19);
-                                    break;
-                                case 10:
-                                    blockGeneratingLevel = true;
-                                    map = new Map(SavedMaps.Level_20);
-                                    break;
-                                default:
-                                    levelNumber = -1;
-                                    break;
-                            }
                         }
-                        else if (mouse.Y > 560 && mouse.Y < 600)
+                        else if (mousePos.Y > 600 && mousePos.Y < 640)
                         {
                             levelNumber = i + 21;
-                            switch (i + 1)
-                            {
-                                case 1:
-                                    map = new Map(SavedMaps.Level_21);
-                                    break;
-                                case 2:
-                                    map = new Map(SavedMaps.Level_22);
-                                    break;
-                                case 3:
-                                    map = new Map(SavedMaps.Level_23);
-                                    break;
-                                case 4:
-                                    map = new Map(SavedMaps.Level_24);
-                                    break;
-                                case 5:
-                                    map = new Map(SavedMaps.Level_25);
-                                    break;
-                                default:
-                                    levelNumber = -1;
-                                    break;
-                            }
-
                         }
+                        if (levelNumber != -1)
+                            map = new Map(SavedMaps.chooseMap(levelNumber));
                     }
                 }
             }
@@ -269,37 +194,54 @@ namespace HelloWorld
         }
         static void choosingMethodPrompts()
         {
-            Raylib.DrawText("Choose playing method", 220, 10, 28, Color.WHITE);
-            Raylib.DrawText("1: User Play", 20, 50, 21, Color.WHITE);
-            Raylib.DrawText("2: BFS", 200, 50, 21, Color.WHITE);
-            Raylib.DrawText("3: DFS", 200, 75, 21, Color.WHITE);
-            Raylib.DrawText("4: Uniform Cost", 350, 50, 21, Color.WHITE);
-            Raylib.DrawText("5: A*", 350, 75, 21, Color.WHITE);
-            Raylib.DrawText("R: Restart", 580, 50, 21, Color.WHITE);
-            Raylib.DrawText(levelNumber.ToString(), 620, 620, 28, Color.WHITE);
+            Raylib.DrawText("Choose playing method", screenWidth / 3, 20, 30, Colors.WHITE);
+            Raylib.DrawText("1: User Play", 30, 60, 21, Colors.WHITE);
+            Raylib.DrawText("2: BFS", 200, 60, 21, Colors.WHITE);
+            Raylib.DrawText("3: DFS", 350, 60, 21, Colors.WHITE);
+            Raylib.DrawText("4: Uniform Cost", 500, 60, 21, Colors.WHITE);
+            Raylib.DrawText("5: A*", 720, 60, 21, Colors.WHITE);
+            Raylib.DrawText("R: Restart", 30, screenHeight - 65, 21, Colors.WHITE);
+            Raylib.DrawText("M: Main Menu", 30, screenHeight - 90, 21, Colors.WHITE);
+            Raylib.DrawText(levelNumber.ToString(), screenWidth - 130, screenHeight - 80, 28, Colors.WHITE);
         }
         static void userPlayPrompts()
         {
-            Raylib.DrawText("Move: ARROWS / WASD", 25, 20, 21, Color.WHITE);
-            Raylib.DrawText("Restart: R", 25, 50, 21, Color.WHITE);
-            Raylib.DrawText(levelNumber.ToString(), 620, 620, 21, Color.WHITE);
+            Raylib.DrawText("Move: ARROWS / WASD", 25, 20, 21, Colors.WHITE);
+            Raylib.DrawText("R: Restart", 30, screenHeight - 50, 21, Colors.WHITE);
+            Raylib.DrawText("M: Main Menu", 30, screenHeight - 80, 21, Colors.WHITE);
+            Raylib.DrawText(levelNumber.ToString(), screenWidth - 130, screenHeight - 80, 28, Colors.WHITE);
         }
-        static void restart()
+        static void restartMainMenu()
         {
-            map = null;
             Algorithms.visitedStates = 0;
             Algorithms.passedMaps.Clear();
             Algorithms.passedMapsHash.Clear();
-            Map.letters.Clear();
-            blockGeneratingLevel = false;
-            Console.Clear();
+            Map.destinations.Clear();
+            loading = false;
+            Map.blockGeneratingLevel = false;
+            stopwatch = new Stopwatch();
+            map = null;
+            levelNumber = -1;
             state = stateEnum.Intro;
-            algorithmSolvable = false;
+        }
+        static void restartLevel()
+        {
+            Algorithms.visitedStates = 0;
+            Algorithms.passedMaps.Clear();
+            Algorithms.passedMapsHash.Clear();
+            Map.destinations.Clear();
+            stopwatch = new Stopwatch();
+            map = null;
+            loading = false;
+
+            state = stateEnum.ChoosingMethod;
+            map = new Map(SavedMaps.chooseMap(levelNumber));
         }
         static void results()
         {
-            Raylib.DrawText("You Won!", width / 3, height - 75, 40, Color.GREEN);
-            Raylib.DrawText("R: Restart", 25, 50, 21, Color.WHITE);
+            Raylib.DrawText("You Won!", mapWidth / 2 - 60, 45, 40, Colors.YOU_WON);
+            Raylib.DrawText("M: Main Menu", 30, screenHeight - 80, 21, Colors.WHITE);
+            Raylib.DrawText("R: Restart", 30, screenHeight - 50, 21, Colors.WHITE);
 
             List<string> moves = new List<string>() { };
             string movesString = "";
@@ -313,11 +255,33 @@ namespace HelloWorld
             Array.Reverse(allMovesCharArray);
             if (allMovesCharArray.Length > 1)
             {
-                Raylib.DrawText(stopwatch.Elapsed.TotalSeconds.ToString() + " seconds",
-                    20, height - 30, 25, Color.WHITE);
-                Raylib.DrawText("Moves: " + new string(allMovesCharArray), 20, height, 20, Color.WHITE);
-                Raylib.DrawText("Solution Depth: " + map.numberOfMoves.ToString(), 20, height + 30, 20, Color.WHITE);
-                Raylib.DrawText("Visited States: " + Algorithms.visitedStates.ToString(), width / 2, height + 30, 20, Color.WHITE);
+                Raylib.DrawText(stopwatch.Elapsed.TotalSeconds.ToString() + " seconds", 100, mapHeight - 80, 25, Colors.WHITE);
+                Raylib.DrawText("Moves: " + new String(allMovesCharArray), 100, mapHeight - 50, 20, Colors.WHITE);
+                Raylib.DrawText("Solution Depth: " + map.numberOfMoves.ToString(), 100, mapHeight - 25, 20, Colors.WHITE);
+                Raylib.DrawText("Visited States: " + Algorithms.visitedStates.ToString(), mapWidth / 2 + 40, mapHeight - 25, 20, Colors.WHITE);
+            }
+        }
+        static void loadingText()
+        {
+            if (frameCounter < 24)
+            {
+                Raylib.DrawText("Loading", screenWidth / 2 - 50, screenHeight - 80, 20, Colors.WHITE);
+                frameCounter++;
+            }
+            else if (frameCounter < 48)
+            {
+                Raylib.DrawText("Loading.", screenWidth / 2 - 50, screenHeight - 80, 20, Colors.WHITE);
+                frameCounter++;
+            }
+            else if (frameCounter < 72)
+            {
+                Raylib.DrawText("Loading..", screenWidth / 2 - 50, screenHeight - 80, 20, Colors.WHITE);
+                frameCounter++;
+            }
+            else
+            {
+                Raylib.DrawText("Loading", screenWidth / 2 - 50, screenHeight - 80, 20, Colors.WHITE);
+                frameCounter = 0;
             }
         }
         static void hideConsole()

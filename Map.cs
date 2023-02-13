@@ -5,58 +5,59 @@ namespace HelloWorld
     class Map
     {
         public string[,] map;
-        public List<Object> numbers = new List<Object> { };
-        public static List<Object> letters = new List<Object> { };
+        public List<Cell> numbers = new List<Cell> { };
+        public static List<Cell> destinations = new List<Cell> { };
         public Map? parent;
         public string? moveThatResultedInThisMap;
-        public int numberOfMoves;
-        public int heuristic;
-        public int heuristicPlusCost;
+        public int numberOfMoves, heuristic, heuristicPlusCost;
         private string EMPTY = "_";
-        Sound win = Raylib.LoadSound("new-win-gold-special.wav");
+        public static bool blockGeneratingLevel = false;
+        static Sound winSFX = Raylib.LoadSound("new-win-gold-special.wav");
 
         public Map(string[,] savedMap)
         {
             this.map = new String[savedMap.GetLength(0), savedMap.GetLength(1)];
+            //parsing the map
             for (int i = 0; i < savedMap.GetLength(0); i++)
             {
                 for (int j = 0; j < savedMap.GetLength(1); j++)
                 {
                     this.map[i, j] = savedMap[i, j];
-                    if (savedMap[i, j][0] == '+')
+                    //cells that have + or - (e.g. +1)
+                    if (savedMap[i, j][0] == '+' || savedMap[i, j][0] == '-')
                     {
                         continue;
                     }
-                    //for input like 2a
+                    //cells that have a number and a destination (letter) 
                     else if (savedMap[i, j].Length == 2)
                     {
-                        numbers.Add(new Object(savedMap[i, j][0].ToString(), i, j));
-                        letters.Add(new Object(savedMap[i, j][1].ToString(), i, j));
+                        numbers.Add(new Cell(savedMap[i, j][0].ToString(), i, j));
+                        destinations.Add(new Cell(savedMap[i, j][1].ToString(), i, j));
                         map[i, j] = savedMap[i, j][0].ToString();
                     }
 
-                    //for input like 2
+                    //cells that have a number 
                     else if (int.TryParse(savedMap[i, j], out _))
-                        numbers.Add(new Object(savedMap[i, j], i, j));
+                        numbers.Add(new Cell(savedMap[i, j], i, j));
 
-                    //for input like a
+                    //cells that have a destination (letter) 
                     else if (savedMap[i, j].Any(x => char.IsLetter(x)))
                     {
-                        letters.Add(new Object(savedMap[i, j], i, j));
+                        destinations.Add(new Cell(savedMap[i, j], i, j));
                         map[i, j] = EMPTY;
                     }
                 }
             }
             numbers = numbers.OrderBy(o => o.value).ToList();
-            letters = letters.OrderBy(o => o.value).ToList();
+            destinations = destinations.OrderBy(o => o.value).ToList();
             heuristic = calculateHeuristic();
         }
         public bool canMoveRight()
         {
             numbers = numbers.OrderBy(o => o.y).ToList();
-            foreach (Object num in numbers)
+            foreach (Cell num in numbers)
             {
-                if (map[num.x, num.y + 1] == EMPTY)
+                if (map[num.x, num.y + 1] == EMPTY || map[num.x, num.y + 1][0] == '+' || map[num.x, num.y + 1][0] == '-')
                     return true;
             }
             return false;
@@ -64,25 +65,29 @@ namespace HelloWorld
         public Map moveRight()
         {
             numbers = numbers.OrderBy(o => o.y).ToList();
-            foreach (Object num in numbers)
+            foreach (Cell num in numbers)
             {
                 if (map[num.x, num.y + 1] == EMPTY)
                 {
                     map[num.x, num.y + 1] = num.value;
-                    if (Program.blockGeneratingLevel)
+                    if (blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
                     num.y++;
                 }
-                else if (map[num.x, num.y + 1][0] == '+')
+                else if (map[num.x, num.y + 1][0] == '+' || map[num.x, num.y + 1][0] == '-')
                 {
-                    int a = (int)num.value[0] + (map[num.x, num.y + 1][1] - 48);
+                    int a;
+                    if (map[num.x, num.y + 1][0] == '+')
+                        a = (int)num.value[0] + (map[num.x, num.y + 1][1] - 48);
+                    else
+                        a = (int)num.value[0] - (map[num.x, num.y + 1][1] - 48);
                     char c = (char)a;
                     num.value = c.ToString();
 
                     map[num.x, num.y + 1] = num.value;
-                    if (Program.blockGeneratingLevel)
+                    if (blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
@@ -94,9 +99,9 @@ namespace HelloWorld
         public bool canMoveLeft()
         {
             numbers = numbers.OrderByDescending(o => o.y).ToList();
-            foreach (Object num in numbers)
+            foreach (Cell num in numbers)
             {
-                if (map[num.x, num.y - 1] == EMPTY)
+                if (map[num.x, num.y - 1] == EMPTY || map[num.x, num.y - 1][0] == '+' || map[num.x, num.y - 1][0] == '-')
                     return true;
             }
             return false;
@@ -104,25 +109,30 @@ namespace HelloWorld
         public Map moveLeft()
         {
             numbers = numbers.OrderByDescending(o => o.y).ToList();
-            foreach (Object num in numbers)
+            foreach (Cell num in numbers)
             {
                 if (map[num.x, num.y - 1] == EMPTY)
                 {
                     map[num.x, num.y - 1] = num.value;
-                    if (Program.blockGeneratingLevel)
+                    if (blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
                     num.y--;
                 }
-                else if (map[num.x, num.y - 1][0] == '+')
+                else if (map[num.x, num.y - 1][0] == '+' || map[num.x, num.y - 1][0] == '-')
                 {
-                    int a = (int)num.value[0] + (map[num.x, num.y - 1][1] - 48);
+                    int a;
+                    if (map[num.x, num.y - 1][0] == '+')
+                        a = (int)num.value[0] + (map[num.x, num.y - 1][1] - 48);
+                    else
+                        a = (int)num.value[0] - (map[num.x, num.y - 1][1] - 48);
+
                     char c = (char)a;
                     num.value = c.ToString();
 
                     map[num.x, num.y - 1] = num.value;
-                    if (Program.blockGeneratingLevel)
+                    if (blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
@@ -135,9 +145,9 @@ namespace HelloWorld
         public bool canMoveUp()
         {
             numbers = numbers.OrderByDescending(o => o.x).ToList();
-            foreach (Object num in numbers)
+            foreach (Cell num in numbers)
             {
-                if (map[num.x - 1, num.y] == EMPTY)
+                if (map[num.x - 1, num.y] == EMPTY || map[num.x - 1, num.y][0] == '+' || map[num.x - 1, num.y][0] == '-')
                     return true;
             }
             return false;
@@ -145,25 +155,29 @@ namespace HelloWorld
         public Map moveUp()
         {
             numbers = numbers.OrderByDescending(o => o.x).ToList();
-            foreach (Object num in numbers)
+            foreach (Cell num in numbers)
             {
                 if (map[num.x - 1, num.y] == EMPTY)
                 {
                     map[num.x - 1, num.y] = num.value;
-                    if (Program.blockGeneratingLevel)
+                    if (blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
                     num.x--;
                 }
-                else if (map[num.x - 1, num.y][0] == '+')
+                else if (map[num.x - 1, num.y][0] == '+' || map[num.x - 1, num.y][0] == '-')
                 {
-                    int a = (int)num.value[0] + (map[num.x - 1, num.y][1] - 48);
+                    int a;
+                    if (map[num.x - 1, num.y][0] == '+')
+                        a = (int)num.value[0] + (map[num.x - 1, num.y][1] - 48);
+                    else
+                        a = (int)num.value[0] - (map[num.x - 1, num.y][1] - 48);
                     char c = (char)a;
                     num.value = c.ToString();
 
                     map[num.x - 1, num.y] = num.value;
-                    if (Program.blockGeneratingLevel)
+                    if (blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
@@ -175,9 +189,9 @@ namespace HelloWorld
         public bool canMoveDown()
         {
             numbers = numbers.OrderBy(o => o.x).ToList();
-            foreach (Object num in numbers)
+            foreach (Cell num in numbers)
             {
-                if (map[num.x + 1, num.y] == EMPTY)
+                if (map[num.x + 1, num.y] == EMPTY || map[num.x + 1, num.y][0] == '+' || map[num.x + 1, num.y][0] == '-')
                     return true;
             }
             return false;
@@ -185,25 +199,29 @@ namespace HelloWorld
         public Map moveDown()
         {
             numbers = numbers.OrderBy(o => o.x).ToList();
-            foreach (Object num in numbers)
+            foreach (Cell num in numbers)
             {
                 if (map[num.x + 1, num.y] == EMPTY)
                 {
                     map[num.x + 1, num.y] = num.value;
-                    if (Program.blockGeneratingLevel)
+                    if (blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
                     num.x++;
                 }
-                else if (map[num.x + 1, num.y][0] == '+')
+                else if (map[num.x + 1, num.y][0] == '+' || map[num.x + 1, num.y][0] == '-')
                 {
-                    int a = (int)num.value[0] + (map[num.x + 1, num.y][1] - 48);
+                    int a;
+                    if (map[num.x + 1, num.y][0] == '+')
+                        a = (int)num.value[0] + (map[num.x + 1, num.y][1] - 48);
+                    else
+                        a = (int)num.value[0] - (map[num.x + 1, num.y][1] - 48);
                     char c = (char)a;
                     num.value = c.ToString();
 
                     map[num.x + 1, num.y] = num.value;
-                    if (Program.blockGeneratingLevel)
+                    if (blockGeneratingLevel)
                         map[num.x, num.y] = "#";
                     else
                         map[num.x, num.y] = EMPTY;
@@ -218,13 +236,18 @@ namespace HelloWorld
             numbers = numbers.OrderBy(o => o.value).ToList();
             for (int i = 0; i < numbers.Count; i++)
             {
-                Object? l = letters.Find(o => ((o.value[0] - numbers[i].value[0]) == 48) && numbers[i].x == o.x && numbers[i].y == o.y);
-                if (l == null)
-                {
-                    return false;
-                }
+                /*
+                    subtracts the ascii value of the number and destination
+                    if the number and destination match then the value must be 48
+                    e.g. 'a' in ascii is 97
+                         '1' in ascii is 49
+                         'a' - '1' = 97 - 49 = 48 
+                */
+                Cell? destination = destinations.Find(des => ((des.value[0] - numbers[i].value[0]) == 48)
+                                                            && numbers[i].x == des.x && numbers[i].y == des.y);
+                if (destination == null) return false;
             }
-            Raylib.PlaySound(win);
+            Raylib.PlaySound(winSFX);
             return true;
         }
         public List<Map> possibleStates()
@@ -278,48 +301,25 @@ namespace HelloWorld
                 {
                     if (map[i, j] == EMPTY)
                     {
-                        Raylib.DrawRectangle(j * 100, i * 100, 100, 100, Color.WHITE);
-                        // if (i > 0)
-                        // {
-                        //     if (map[i - 1, j] == "#")
-                        //     {
-                        //         Raylib.DrawRectangle(j * 100, i * 100, 100, 3, Color.DARKGRAY);
-                        //     }
-                        // }
-                        // if (j > 0)
-                        // {
-                        //     if (map[i, j - 1] == "#")
-                        //     {
-                        //         Raylib.DrawRectangle(j * 100, i * 100, 3, 100, Color.DARKGRAY);
-                        //     }
-                        // }
+                        Raylib.DrawRectangle(j * 100, i * 100, 100, 100, Colors.WHITE);
                     }
-                    // if (j == map.GetLength(1) - 1 && map[i, j - 1] != "#")
-                    // {
-                    //     Raylib.DrawRectangle(j * 100, 6 + i * 100, 3, 94, Color.DARKGRAY);
-                    // }
-                    // if (i == map.GetLength(0) - 1 && map[i - 1, j] != "#")
-                    // {
-                    //     Raylib.DrawRectangle(6 + j * 100, i * 100, 94, 3, Color.DARKGRAY);
-                    // }
                     if (map[i, j][0] == '+' || map[i, j][0] == '-')
                     {
-                        Raylib.DrawRectangle(j * 100, i * 100, 100, 100, Color.WHITE);
-                        Raylib.DrawText(map[i, j], (j * 100) + 60, (i * 100) + 40, 26, Color.PURPLE);
+                        Raylib.DrawRectangle(j * 100, i * 100, 100, 100, Colors.PLUS_MINUS_BOX);
+                        Raylib.DrawText(map[i, j], (j * 100) + 40, (i * 100) + 40, 32, Colors.PLUS_MINUS);
                     }
                 }
-            }
-            foreach (Object num in numbers)
-            {
-                Raylib.DrawRectangle(num.y * 100, num.x * 100, 100, 100, Color.DARKGRAY);
-                Raylib.DrawRectangle(2 + num.y * 100, 2 + num.x * 100, 96, 96, Color.GREEN);
-                Raylib.DrawText(num.value, (num.y * 100) + 40, (num.x * 100) + 40, 26, Color.BLUE);
-            }
-            foreach (Object let in letters)
-            {
-                int a = let.value[0] - 48;
-                char c = (char)a;
-                Raylib.DrawText(c.ToString(), (let.y * 100) + 60, (let.x * 100) + 40, 26, Color.RED);
+                foreach (Cell num in numbers)
+                {
+                    Raylib.DrawRectangle(num.y * 100, num.x * 100, 100, 100, Colors.NUMBER_BOX);
+                    Raylib.DrawText(num.value, (num.y * 100) + 40, (num.x * 100) + 40, 32, Colors.NUMBER);
+                }
+                foreach (Cell dis in destinations)
+                {
+                    int ascii = dis.value[0] - 48;
+                    char c = (char)ascii;
+                    Raylib.DrawText(c.ToString(), (dis.y * 100) + 60, (dis.x * 100) + 40, 32, Colors.DISTINATION);
+                }
             }
         }
         public Map deepCopy()
@@ -340,7 +340,11 @@ namespace HelloWorld
             int ans = 0;
             for (int i = 0; i < numbers.Count; i++)
             {
-                ans += Math.Abs(numbers[i].x - letters[i].x) + Math.Abs(numbers[i].y - letters[i].y);
+                int temp = destinations[i].value[0] - numbers[i].value[0];
+                if (temp == 48)
+                    ans += Math.Abs(numbers[i].x - destinations[i].x) + Math.Abs(numbers[i].y - destinations[i].y);
+                else
+                    ans += temp;
             }
             return ans;
         }
